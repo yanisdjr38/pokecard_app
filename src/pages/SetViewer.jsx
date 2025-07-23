@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 
 import { cardsEV10 } from "../data/cardsEV10";
@@ -9,15 +10,14 @@ import { cardsEV9 } from "../data/cardsEV9";
 
 export default function SetViewer() {
   const { code } = useParams();
+  const [searchTerm, setSearchTerm] = useState("");
 
-  // Normaliser le code (ex: "EV10.5 BL" → "ev105bl")
   const normalizedCode = code
     .toLowerCase()
     .replace(/\s+/g, "")
     .replace(".", "");
 
   let cards = [];
-
   switch (normalizedCode) {
     case "ev105bl":
       cards = cardsEV105BL;
@@ -41,15 +41,29 @@ export default function SetViewer() {
       cards = [];
   }
 
+  const filteredCards = cards.filter(
+    (card) =>
+      card.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      card.id.toString().includes(searchTerm)
+  );
+
   return (
     <div className="p-6 max-w-6xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">Série : {code}</h1>
 
-      {cards.length === 0 ? (
-        <p className="text-gray-500">Aucune carte trouvée pour ce set.</p>
+      <input
+        type="text"
+        placeholder="Rechercher par nom ou ID..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="mb-6 w-full p-2 border border-gray-300 rounded"
+      />
+
+      {filteredCards.length === 0 ? (
+        <p className="text-gray-500">Aucune carte trouvée.</p>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-          {cards.map((card) => (
+          {filteredCards.map((card) => (
             <div
               key={card.id}
               className="bg-white rounded-lg overflow-hidden shadow hover:shadow-md transition"
@@ -62,6 +76,7 @@ export default function SetViewer() {
               />
               <div className="p-2 text-center">
                 <p className="text-sm text-gray-700">{card.name}</p>
+                <p className="text-xs text-gray-500">ID: {card.id}</p>
               </div>
             </div>
           ))}

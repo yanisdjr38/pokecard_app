@@ -29,8 +29,10 @@ export default function CollectionSet() {
 
   const cards = cardsBySet[normalizedCode] || [];
 
+  const [searchTerm, setSearchTerm] = useState("");
   const [checklist, setChecklist] = useState(() => {
     const saved = localStorage.getItem(`checklist_${normalizedCode}`);
+
     return saved ? JSON.parse(saved) : {};
   });
 
@@ -178,6 +180,14 @@ export default function CollectionSet() {
         Checklist - {code}
       </h1>
 
+      <input
+        type="text"
+        placeholder="Rechercher par nom ou ID..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="mb-6 w-full p-2 border border-gray-300 rounded"
+      />
+
       <div className="flex justify-center mb-6 gap-4 flex-wrap">
         <button
           onClick={exportMissingCardsTXT}
@@ -194,37 +204,44 @@ export default function CollectionSet() {
       </div>
 
       <div className="grid grid-cols-1 gap-4">
-        {cards.map((card) => (
-          <div
-            key={card.id}
-            className="bg-white rounded-xl shadow p-4 flex flex-col items-center text-center"
-          >
-            <img
-              src={card.image}
-              alt={card.name}
-              className="w-full max-w-[250px] h-auto mx-auto rounded mb-2"
-              loading="lazy"
-            />
-            <p className="font-semibold text-sm mb-2">{card.name}</p>
+        {cards
+          .filter(
+            (card) =>
+              card.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              card.id.toString().includes(searchTerm)
+          )
+          .map((card) => (
+            <div
+              key={card.id}
+              className="bg-white rounded-xl shadow p-4 flex flex-col items-center text-center"
+            >
+              <img
+                src={card.image}
+                alt={card.name}
+                className="w-full max-w-[250px] h-auto mx-auto rounded mb-2"
+                loading="lazy"
+              />
+              <p className="font-semibold text-sm mb-2">{card.name}</p>
+              <p className="text-xs text-gray-500 mb-2">ID: {card.id}</p>
 
-            <div className="grid grid-cols-2 gap-2 w-full text-xs px-2">
-              {variants.map((type) => (
-                <label key={type} className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={!!checklist[card.id]?.[type]}
-                    onChange={() => toggle(card.id, type)}
-                    className="accent-blue-600"
-                  />
-                  {type === "normal" && "Normal"}
-                  {type === "reverse" && "reverse"}
-                  {type === "pokeball" && "Pokéball"}
-                  {type === "masterball" && "Master Ball"}
-                </label>
-              ))}
+              <div className="grid grid-cols-2 gap-2 w-full text-xs px-2">
+                {variants.map((type) => (
+                  <label key={type} className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={!!checklist[card.id]?.[type]}
+                      onChange={() => toggle(card.id, type)}
+                      className="accent-blue-600"
+                    />
+                    {type === "normal" && "Normal"}
+                    {type === "reverse" && "reverse"}
+                    {type === "pokeball" && "Pokéball"}
+                    {type === "masterball" && "Master Ball"}
+                  </label>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
       </div>
     </div>
   );
