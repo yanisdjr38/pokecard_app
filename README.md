@@ -1,12 +1,74 @@
-# React + Vite
+# 📱 PokéCard Tracker
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Une application mobile-friendly construite avec **React**, **Vite** et **Tailwind CSS** pour suivre sa collection de cartes Pokémon et exporter facilement les cartes manquantes d’un master set.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Fonctionnalités
 
-## Expanding the ESLint configuration
+- 📂 **Affichage par série** (Foudre Noire, Flamme Blanche, etc.)
+- ✅ **Checklist** avec variantes :
+  - Normal
+  - Holo
+  - Pokéball
+  - Master Ball
+- 💾 Sauvegarde automatique dans `localStorage`
+- 📤 **Export des cartes manquantes** :
+  - En **TXT** (format lisible)
+  - En **CSV** (compatible Excel)
+- ⚙️ Interface 100% optimisée mobile
+- 📱 Possibilité de transformer en APK Android via Capacitor
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## 🚀 Installation
+
+```bash
+git clone https://github.com/ton-user/pokecard-tracker.git
+cd pokecard-tracker
+npm install
+npm run dev
+```
+
+---
+
+## 📦 Génération APK (Android)
+
+> Prérequis : Android Studio + Capacitor installé
+
+```bash
+npx cap add android
+npx cap copy
+npx cap open android
+```
+
+Puis dans Android Studio :
+- Clique sur **Build > Build Bundle(s) / APK(s) > Build APK**
+- Récupère l’APK dans le dossier `android/app/build/outputs/apk/debug/app-debug.apk`
+
+---
+
+## 📁 Structure des données
+
+Les cartes sont stockées dans `src/data/` sous forme de tableau d’objets :
+
+```js
+{
+  id: 1,
+  name: "Vipélierre",
+  image: "https://...",
+}
+```
+
+---
+
+## ✍️ Auteurs
+
+- Développement : [@yanis](https://github.com/yanis)
+- UI & conseils : ChatGPT (OpenAI)
+
+---
+
+## 📜 Licence
+
+Ce projet est open-source. Utilisation libre à des fins personnelles ou communautaires.
