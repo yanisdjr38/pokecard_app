@@ -9,7 +9,7 @@ Une application mobile-friendly construite avec **React**, **Vite** et **Tailwin
 - 📂 **Affichage par série** (Foudre Noire, Flamme Blanche, etc.)
 - ✅ **Checklist** avec variantes :
   - Normal
-  - Holo
+  - reverse
   - Pokéball
   - Master Ball
 - 💾 Sauvegarde automatique dans `localStorage`
@@ -43,6 +43,7 @@ npx cap open android
 ```
 
 Puis dans Android Studio :
+
 - Clique sur **Build > Build Bundle(s) / APK(s) > Build APK**
 - Récupère l’APK dans le dossier `android/app/build/outputs/apk/debug/app-debug.apk`
 

@@ -8,7 +8,7 @@ import { cardsEV8 } from "../data/cardsEV8";
 import { cardsEV85 } from "../data/cardsEV85";
 import { cardsEV9 } from "../data/cardsEV9";
 
-const variants = ["normal", "holo", "pokeball", "masterball"];
+const variants = ["normal", "reverse", "pokeball", "masterball"];
 
 export default function CollectionSet() {
   const { code } = useParams();
@@ -59,7 +59,7 @@ export default function CollectionSet() {
           .filter((type) => !state[type])
           .map((type) => {
             if (type === "normal") return "❌ Normal";
-            if (type === "holo") return "❌ Holo";
+            if (type === "reverse") return "❌ reverse";
             if (type === "pokeball") return "❌ Pokéball";
             if (type === "masterball") return "❌ Master Ball";
           });
@@ -113,7 +113,7 @@ export default function CollectionSet() {
   };
 
   const exportMissingCardsCSV = () => {
-    const rows = [["Carte", "Normal", "Holo", "Pokéball", "Master Ball"]];
+    const rows = [["Carte", "Normal", "reverse", "Pokéball", "Master Ball"]];
 
     cards.forEach((card) => {
       const state = checklist[card.id] || {};
@@ -123,7 +123,7 @@ export default function CollectionSet() {
         rows.push([
           card.name,
           state.normal ? "✅" : "❌",
-          state.holo ? "✅" : "❌",
+          state.reverse ? "✅" : "❌",
           state.pokeball ? "✅" : "❌",
           state.masterball ? "✅" : "❌",
         ]);
@@ -217,7 +217,7 @@ export default function CollectionSet() {
                     className="accent-blue-600"
                   />
                   {type === "normal" && "Normal"}
-                  {type === "holo" && "Holo"}
+                  {type === "reverse" && "reverse"}
                   {type === "pokeball" && "Pokéball"}
                   {type === "masterball" && "Master Ball"}
                 </label>
