@@ -1,6 +1,8 @@
-# 📱 PokéCard Tracker
+# 📱 CardTrackr
 
 Une application mobile-friendly construite avec **React**, **Vite** et **Tailwind CSS** pour suivre sa collection de cartes Pokémon et exporter facilement les cartes manquantes d’un master set.
+
+Retrouver l'APK en debug directment en téléchargement ici !
 
 ---
 
