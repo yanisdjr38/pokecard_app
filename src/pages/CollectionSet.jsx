@@ -69,7 +69,7 @@ export default function CollectionSet() {
 
         if (manquantes.length === 0) return null;
 
-        return `Carte ${card.id} - ${card.name} : ${manquantes.join(", ")}`;
+        return `Carte ${card.id} : ${manquantes.join(", ")}`;
       })
       .filter(Boolean);
 
@@ -87,16 +87,64 @@ export default function CollectionSet() {
           <meta charset="utf-8" />
           <title>Cartes manquantes - ${code}</title>
           <style>
-            body { padding: 1rem; font-family: sans-serif; }
-            textarea { width: 100%; height: 400px; }
-            button { margin: 1rem 0; padding: 0.5rem 1rem; font-size: 1rem; }
+            body {
+              padding: 1rem;
+              font-family: system-ui, sans-serif;
+              background: #f9fafb;
+              color: #111827;
+              max-width: 600px;
+              margin: auto;
+            }
+            h2 {
+              font-size: 1.25rem;
+              font-weight: 600;
+              text-align: center;
+              margin-bottom: 1rem;
+            }
+            p {
+              text-align: center;
+              font-size: 0.9rem;
+              margin-bottom: 1rem;
+            }
+            a {
+              display: block;
+              margin-bottom: 1rem;
+              text-align: center;
+              color: #2563eb;
+              text-decoration: underline;
+            }
+            textarea {
+              width: 100%;
+              height: 350px;
+              padding: 0.5rem;
+              font-size: 0.85rem;
+              border: 1px solid #d1d5db;
+              border-radius: 0.5rem;
+              background: #fff;
+              resize: vertical;
+            }
+            button {
+              display: block;
+              margin: 1rem auto;
+              padding: 0.5rem 1rem;
+              background-color: #3b82f6;
+              color: white;
+              border: none;
+              border-radius: 0.5rem;
+              font-size: 0.9rem;
+              cursor: pointer;
+            }
+            button:hover {
+              background-color: #2563eb;
+            }
           </style>
         </head>
         <body>
-          <h2>📄 Cartes manquantes (${code})</h2>
-          <p>Sélectionne ou copie le texte ci-dessous :</p>
+          <a href="/collection">← Retour à la collection</a>
+          <h2>📄 Cartes manquantes (TXT - ${code})</h2>
+          <p>Appuie sur le bouton ou copie manuellement le contenu :</p>
           <button onclick="copyText()">📋 Copier dans le presse-papiers</button>
-          <textarea id="txtExport">${content}</textarea>
+          <textarea id="txtExport" readonly>${content}</textarea>
           <script>
             function copyText() {
               const textarea = document.getElementById("txtExport");
@@ -126,7 +174,7 @@ export default function CollectionSet() {
 
       if (!hasAll) {
         rows.push([
-          card.name,
+          `#${card.id}`,
           state.normal ? "✅" : "❌",
           state.holo ? "✅" : "❌",
           state.reverse ? "✅" : "❌",
@@ -150,16 +198,65 @@ export default function CollectionSet() {
           <meta charset="utf-8" />
           <title>Cartes manquantes - ${code}</title>
           <style>
-            body { padding: 1rem; font-family: sans-serif; }
-            textarea { width: 100%; height: 400px; }
-            button { margin: 1rem 0; padding: 0.5rem 1rem; font-size: 1rem; }
+            body {
+              padding: 1rem;
+              font-family: system-ui, sans-serif;
+              background: #f9fafb;
+              color: #111827;
+              max-width: 600px;
+              margin: auto;
+            }
+            h2 {
+              font-size: 1.25rem;
+              font-weight: 600;
+              text-align: center;
+              margin-bottom: 1rem;
+            }
+            p {
+              text-align: center;
+              font-size: 0.9rem;
+              margin-bottom: 1rem;
+            }
+            a {
+              display: block;
+              margin-bottom: 1rem;
+              text-align: center;
+              color: #2563eb;
+              text-decoration: underline;
+            }
+            textarea {
+              width: 100%;
+              height: 350px;
+              padding: 0.5rem;
+              font-size: 0.85rem;
+              border: 1px solid #d1d5db;
+              border-radius: 0.5rem;
+              background: #fff;
+              resize: vertical;
+            }
+            button {
+              display: block;
+              margin: 1rem auto;
+              padding: 0.5rem 1rem;
+              background-color: blue;
+              color: white;
+              border: none;
+              border-radius: 0.5rem;
+              font-size: 0.9rem;
+              cursor: pointer;
+            }
+            button:hover {
+              background-color: #2563eb;
+            }
           </style>
         </head>
         <body>
+        
+          <a href="/collection">← Retour à la collection</a>
           <h2>📊 Cartes manquantes (CSV - ${code})</h2>
-          <p>Sélectionne ou copie le texte ci-dessous :</p>
+          <p>Appuie sur le bouton ou copie manuellement le contenu :</p>
           <button onclick="copyText()">📋 Copier dans le presse-papiers</button>
-          <textarea id="csvExport">${csv}</textarea>
+          <textarea id="csvExport" readonly>${csv}</textarea>
           <script>
             function copyText() {
               const textarea = document.getElementById("csvExport");
