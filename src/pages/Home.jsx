@@ -35,9 +35,9 @@ const recentSets = [
 
 export default function Home() {
   return (
-    <div className="px-4 py-6 pb-24 max-w-4xl mx-auto">
+    <div className="px-4 py-6 pb-24 w-full max-w-full sm:max-w-4xl mx-auto">
       <h1 className="text-2xl sm:text-3xl font-bold text-center mb-6">
-        Choisis un set Pokémon
+        Nouvelles Series
       </h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
