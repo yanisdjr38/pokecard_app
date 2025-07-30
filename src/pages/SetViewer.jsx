@@ -48,7 +48,7 @@ export default function SetViewer() {
   );
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div className="px-4 py-6 pb-24 w-full max-w-screen-sm sm:max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">Série : {code}</h1>
 
       <input

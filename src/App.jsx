@@ -22,17 +22,19 @@ function App() {
 
   return (
     <Router>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<Home cards={cards} />} />
-        <Route path="/add" element={<AddCard onAdd={addCard} />} />
-        <Route
-          path="/collection"
-          element={<Collection cards={cards} onDelete={deleteCard} />}
-        />
-        <Route path="/set/:code" element={<SetViewer />} />
-        <Route path="/collection/:code" element={<CollectionSet />} />
-      </Routes>
+      <div className="w-full overflow-x-hidden">
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<Home cards={cards} />} />
+          <Route path="/add" element={<AddCard onAdd={addCard} />} />
+          <Route
+            path="/collection"
+            element={<Collection cards={cards} onDelete={deleteCard} />}
+          />
+          <Route path="/set/:code" element={<SetViewer />} />
+          <Route path="/collection/:code" element={<CollectionSet />} />
+        </Routes>
+      </div>
     </Router>
   );
 }

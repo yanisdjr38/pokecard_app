@@ -276,7 +276,7 @@ export default function CollectionSet() {
   };
 
   return (
-    <div className="px-2 py-4 max-w-4xl mx-auto">
+    <div className="px-4 py-6 pb-24 w-full max-w-screen-sm sm:max-w-4xl mx-auto">
       <h1 className="text-2xl sm:text-3xl font-bold mb-4 text-center">
         Checklist - {code}
       </h1>
