@@ -40,13 +40,14 @@ export default function SetViewer() {
     default:
       cards = [];
   }
-
-  const filteredCards = cards.filter(
-    (card) =>
-      card.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      card.id.toString().includes(searchTerm)
-  );
-
+  const filteredCards =
+    cards.length > 0
+      ? cards.filter(
+          (card) =>
+            card.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            card.id?.toString().includes(searchTerm)
+        )
+      : [];
   return (
     <div className="px-4 py-6 pb-24 w-full max-w-screen-sm sm:max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">Série : {code}</h1>
