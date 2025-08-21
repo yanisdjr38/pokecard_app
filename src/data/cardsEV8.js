@@ -1,3 +1,5 @@
+import rarities from "./ev8-rarities.json"; // ajuste le chemin si besoin
+
 const names = [
   "Noeunoeuf",
   "Noeunoeuf",
@@ -253,13 +255,83 @@ const names = [
   "Énergie Propulsion",
 ];
 
-export const cardsEV8 = [
-  ...Array.from({ length: 252 }, (_, i) => ({
-    id: i + 1,
+// Libellés canoniques par code
+const RARITY_LABELS = {
+  C: "Commune",
+  U: "Peu commune",
+  R: "Holo",
+  RR: "Double Rare",
+  IR: "Illustration Rare",
+  SIR: "Illustration Spéciale Rare",
+  UR: "Ultra-rare",
+  HR: "Hyper Rare",
+  ACE: "High-Tech",
+  UNK: "Inconnue",
+};
+
+// Normalise les clés texte de ton JSON -> codes internes
+const KEY_TO_CODE = {
+  Commune: "C",
+  Unco: "U",
+  Holo: "R",
+  "Double Rare": "RR",
+  "Illustration Rare": "IR",
+  "Illustration Special Rare": "SIR",
+  "Illustration Spéciale Rare": "SIR",
+  "Ultra-rare": "UR",
+  "Ultra Rare": "UR",
+  "Hyper Rare": "HR",
+  "High-Tech": "ACE",
+};
+
+// "1-3,5,8-10" -> [1,2,3,5,8,9,10]
+function expandIds(spec) {
+  if (!spec || !spec.trim()) return [];
+  return spec
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .flatMap((part) => {
+      const m = part.match(/^(\d+)\s*-\s*(\d+)$/);
+      if (m) {
+        let a = Number(m[1]),
+          b = Number(m[2]);
+        if (!Number.isFinite(a) || !Number.isFinite(b)) return [];
+        if (a > b) [a, b] = [b, a];
+        return Array.from({ length: b - a + 1 }, (_, i) => a + i);
+      }
+      const n = Number(part);
+      return Number.isFinite(n) ? [n] : [];
+    });
+}
+
+// Construit: Map id -> { code, label }
+function buildRarityIndex(groups, maxId = 252) {
+  const byId = new Map();
+  for (const [key, spec] of Object.entries(groups)) {
+    const code = KEY_TO_CODE[key] ?? "UNK";
+    const label = RARITY_LABELS[code] ?? key;
+    const ids = expandIds(spec);
+    for (const id of ids) {
+      if (id < 1 || id > maxId) continue;
+      byId.set(id, { code, label }); // dernier gagnant si chevauchement
+    }
+  }
+  return byId;
+}
+
+const rarityById = buildRarityIndex(rarities, 252);
+
+export const cardsEV8 = Array.from({ length: 252 }, (_, i) => {
+  const id = i + 1;
+  const r = rarityById.get(id) ?? { code: "UNK", label: "Inconnue" };
+
+  return {
+    id,
     name: names[i],
-    image: `https://dz3we2x72f7ol.cloudfront.net/expansions/surging-sparks/fr-fr/SV08_FR_${
-      i + 1
-    }.png`,
+    image: `https://dz3we2x72f7ol.cloudfront.net/expansions/surging-sparks/fr-fr/SV08_FR_${id}.png`,
     owned: false,
-  })),
-];
+    rarityCode: r.code, // ex. "IR", "RR", "HR", "ACE"…
+    rarity: r.label, // ex. "Illustration Rare", "Double Rare"…
+  };
+});
