@@ -8,6 +8,17 @@ import { cardsEV8 } from "../data/cardsEV8";
 import { cardsEV85 } from "../data/cardsEV85";
 import { cardsEV9 } from "../data/cardsEV9";
 
+// --- Constantes stables (évite les warnings react-hooks/exhaustive-deps) ---
+const EMPTY_ARRAY = [];
+const CARDS_BY_SET = {
+  ev105bl: cardsEV105BL,
+  ev105wh: cardsEV105WH,
+  ev10: cardsEV10,
+  ev9: cardsEV9,
+  ev85: cardsEV85,
+  ev8: cardsEV8,
+};
+
 export default function SetViewer() {
   const { code } = useParams();
   const [searchTerm, setSearchTerm] = useState("");
@@ -16,35 +27,17 @@ export default function SetViewer() {
   const normalizedCode = code
     .toLowerCase()
     .replace(/\s+/g, "")
-    .replace(".", "");
+    .replace(/\./g, "");
 
-  let cards = [];
-  switch (normalizedCode) {
-    case "ev105bl":
-      cards = cardsEV105BL;
-      break;
-    case "ev105wh":
-      cards = cardsEV105WH;
-      break;
-    case "ev10":
-      cards = cardsEV10;
-      break;
-    case "ev9":
-      cards = cardsEV9;
-      break;
-    case "ev85":
-      cards = cardsEV85;
-      break;
-    case "ev8":
-      cards = cardsEV8;
-      break;
-    default:
-      cards = [];
-  }
+  // Mémoïse la liste des cartes du set (fallback stable)
+  const cards = useMemo(
+    () => CARDS_BY_SET[normalizedCode] ?? EMPTY_ARRAY,
+    [normalizedCode]
+  );
 
-  // Raretés présentes dans le set (si dispo)
-  const rarityOrder = ["C", "U", "R", "RR", "IR", "SIR", "UR", "HR", "ACE"]; // commune → high-tech
+  // Raretés présentes dans le set — ordre déclaré *dans* le useMemo
   const rarities = useMemo(() => {
+    const rarityOrder = ["C", "U", "R", "RR", "IR", "SIR", "UR", "HR", "ACE"];
     const map = new Map();
     for (const c of cards) {
       if (!c?.rarityCode || !c?.rarity) continue;
@@ -69,26 +62,26 @@ export default function SetViewer() {
     );
   const clearFilters = () => setActiveCodes([]);
 
+  // Recherche & filtre rareté
   const matchesSearch = (card) =>
     card.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     card.id?.toString().includes(searchTerm);
 
-  const matchesRarity = (card) => {
-    if (!rarities.length) return true; // sets sans rareté → pas de filtre
-    if (!activeCodes.length) return true; // aucun filtre sélectionné → tout
-    return activeCodes.includes(card.rarityCode);
-  };
+  const matchesRarity = (card) =>
+    !rarities.length || !activeCodes.length
+      ? true
+      : activeCodes.includes(card.rarityCode);
 
   const filteredCards =
     cards.length > 0
-      ? cards.filter((card) => matchesSearch(card) && matchesRarity(card))
-      : [];
+      ? cards.filter((c) => matchesSearch(c) && matchesRarity(c))
+      : EMPTY_ARRAY;
 
+  // UI helpers (chips & badge)
   const rarityChipClass = (code, active) => {
     const base =
       "px-3 py-1 rounded-full text-xs font-medium border transition whitespace-nowrap";
     const on = active ? " ring-2 ring-offset-1" : " opacity-80";
-    // couleurs simples par code
     const color =
       code === "C"
         ? "bg-gray-100 border-gray-300"
@@ -138,66 +131,65 @@ export default function SetViewer() {
 
   return (
     <div className="px-4 py-6 pb-24 w-full max-w-screen-sm sm:max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Série : {code}</h1>
+      <h1 className="text-2xl sm:text-3xl font-bold mb-4 text-center">
+        Set – {code}
+      </h1>
 
-      <div className="flex flex-col gap-3 mb-4">
-        <input
-          type="text"
-          placeholder="Rechercher par nom ou ID..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full p-2 border border-gray-300 rounded"
-        />
+      {/* Recherche */}
+      <input
+        type="text"
+        placeholder="Rechercher par nom ou ID..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="mb-4 w-full p-2 border border-gray-300 rounded"
+      />
 
-        {/* Barre de filtres par rareté (affichée uniquement si des raretés existent) */}
-        {rarities.length > 0 && (
-          <div className="flex items-center gap-2 flex-wrap">
-            <div className="flex gap-2 overflow-x-auto pb-1">
-              {rarities.map((r) => {
-                const active = activeCodes.includes(r.code);
-                return (
-                  <button
-                    key={r.code}
-                    type="button"
-                    onClick={() => toggleCode(r.code)}
-                    className={rarityChipClass(r.code, active)}
-                    title={r.label}
-                  >
-                    {r.label} <span className="opacity-60">· {r.count}</span>
-                  </button>
-                );
-              })}
-            </div>
-            {activeCodes.length > 0 && (
-              <button
-                type="button"
-                onClick={clearFilters}
-                className="ml-auto text-xs underline text-blue-600"
-              >
-                Réinitialiser
-              </button>
-            )}
+      {/* Filtres par rareté */}
+      {rarities.length > 0 && (
+        <div className="flex items-center gap-2 flex-wrap mb-4">
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {rarities.map((r) => {
+              const active = activeCodes.includes(r.code);
+              return (
+                <button
+                  key={r.code}
+                  type="button"
+                  onClick={() => toggleCode(r.code)}
+                  className={rarityChipClass(r.code, active)}
+                  title={r.label}
+                >
+                  {r.label} <span className="opacity-60">· {r.count}</span>
+                </button>
+              );
+            })}
           </div>
-        )}
-      </div>
-
-      {filteredCards.length === 0 ? (
-        <p className="text-gray-500">Aucune carte trouvée.</p>
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-          {filteredCards.map((card) => (
-            <div
-              key={`${card.id}-${card.name}`}
-              className="bg-white rounded-lg overflow-hidden shadow hover:shadow-md transition"
+          {activeCodes.length > 0 && (
+            <button
+              type="button"
+              onClick={clearFilters}
+              className="ml-auto text-xs underline text-blue-600"
             >
+              Réinitialiser
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Cartes */}
+      {filteredCards.length === 0 ? (
+        <p className="text-gray-500 text-center">Aucune carte trouvée.</p>
+      ) : (
+        <div className="grid grid-cols-1 gap-4">
+          {filteredCards.map((card) => (
+            <div key={card.id} className="bg-white rounded-xl shadow p-4 flex">
               <img
                 src={card.image}
                 alt={card.name}
-                className="w-full object-cover"
+                className="w-[120px] h-auto rounded mr-4 shrink-0"
                 loading="lazy"
               />
-              <div className="p-2 text-center">
-                <p className="text-sm text-gray-700">{card.name}</p>
+              <div className="flex flex-col justify-center">
+                <p className="font-semibold text-sm">{card.name}</p>
                 <p className="text-xs text-gray-500">ID: {card.id}</p>
                 {card.rarity && (
                   <span className={badgeClass(card.rarityCode)}>
