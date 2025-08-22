@@ -1,3 +1,5 @@
+import rarities from "./ev9-rarities.json";
+
 const names = [
   "Chenipan",
   "Chrysacier",
@@ -190,14 +192,86 @@ const names = [
   "Zoroark ex de N",
   "Énergie Piquante",
 ];
+// Libellés par code
+const RARITY_LABELS = {
+  C: "Commune",
+  U: "Peu commune",
+  R: "Holo",
+  RR: "Double Rare",
+  IR: "Illustration Rare",
+  SIR: "Illustration Spéciale Rare",
+  UR: "Ultra-rare",
+  HR: "Hyper Rare",
+  ACE: "High-Tech",
+  UNK: "Inconnue",
+};
 
-export const cardsEV9 = [
-  ...Array.from({ length: 190 }, (_, i) => ({
-    id: i + 1,
-    name: names[i],
-    image: `https://dz3we2x72f7ol.cloudfront.net/expansions/journey-together/fr-fr/SV09_FR_${
-      i + 1
-    }.png`,
+// Normalisation clé JSON -> code interne
+const KEY_TO_CODE = {
+  Commune: "C",
+  Unco: "U",
+  Holo: "R",
+  "Double Rare": "RR",
+  "Illustration Rare": "IR",
+  "Illustration Special Rare": "SIR",
+  "Illustration Spéciale Rare": "SIR",
+  "Ultra-rare": "UR",
+  "Ultra Rare": "UR",
+  "Hyper Rare": "HR",
+  "High-Tech": "ACE",
+};
+
+// "1-3,5,8-10" -> [1,2,3,5,8,9,10]
+function expandIds(spec) {
+  if (!spec || !spec.trim()) return [];
+  return spec
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .flatMap((part) => {
+      const m = part.match(/^(\d+)\s*-\s*(\d+)$/);
+      if (m) {
+        let a = +m[1],
+          b = +m[2];
+        if (a > b) [a, b] = [b, a];
+        return Array.from({ length: b - a + 1 }, (_, i) => a + i);
+      }
+      const n = +part;
+      return Number.isFinite(n) ? [n] : [];
+    });
+}
+
+function buildRarityIndex(groups) {
+  const byId = new Map();
+  for (const [key, spec] of Object.entries(groups)) {
+    const code = KEY_TO_CODE[key] ?? "UNK";
+    const label = RARITY_LABELS[code] ?? key;
+    for (const id of expandIds(spec)) byId.set(id, { code, label });
+  }
+  return byId;
+}
+
+function getMaxIdFromGroups(groups) {
+  let max = 0;
+  for (const spec of Object.values(groups)) {
+    for (const id of expandIds(spec)) max = Math.max(max, id);
+  }
+  return max;
+}
+
+const rarityById = buildRarityIndex(rarities);
+const maxId = Math.max(names.length, getMaxIdFromGroups(rarities)); // gère 1..190
+
+export const cardsEV9 = Array.from({ length: maxId }, (_, i) => {
+  const id = i + 1;
+  const r = rarityById.get(id) ?? { code: "UNK", label: "Inconnue" };
+
+  return {
+    id,
+    name: names[i] ?? `#${id}`,
+    image: `https://dz3we2x72f7ol.cloudfront.net/expansions/journey-together/fr-fr/SV09_FR_${id}.png`,
     owned: false,
-  })),
-];
+    rarityCode: r.code,
+    rarity: r.label,
+  };
+});
