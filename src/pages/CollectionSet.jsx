@@ -42,7 +42,7 @@ export default function CollectionSet() {
   });
   const [activeCodes, setActiveCodes] = useState([]); // ex: ["IR","RR"]
   const [showMissingOnly, setShowMissingOnly] = useState(false);
-  const [viewMode, setViewMode] = useState("mini"); // mobile-first
+  const [viewMode, setViewMode] = useState("detail"); // mobile-first
   const [missingTypes, setMissingTypes] = useState(variants);
 
   useEffect(() => {
