@@ -160,8 +160,10 @@ export default function CollectionSet() {
     const checks = checklist[card.id] || {};
     const allowed = new Set(allowedVariants(card));
 
+    // Si aucun type sélectionné, on affiche toute carte incomplète.
     if (missingTypes.length === 0) return !hasAllVariants(card.id);
 
+    // Sinon on limite aux variantes pertinentes.
     const relevant = missingTypes.filter((t) => allowed.has(t));
     if (relevant.length === 0) return false;
     return relevant.some((t) => !checks[t]);
@@ -187,18 +189,25 @@ export default function CollectionSet() {
     return { have, need, pct: need ? Math.round((have / need) * 100) : 0 };
   }, [cards, checklist, allowedVariants]);
 
-  // --- UI helpers (contrastes élevés, jamais de texte blanc) ---
+  // --- UI helpers (contrastes élevés) ---
   const chip = (active) =>
-    `px-2.5 py-1 rounded-full text-[12px] font-medium border whitespace-nowrap ${
+    `px-2.5 py-1 rounded-full text-[12px] font-medium border whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
       active
-        ? "bg-amber-100 border-amber-300 text-gray-900"
+        ? "bg-amber-50 border-amber-400 text-gray-900 ring-2 ring-amber-400"
         : "bg-white border-gray-300 text-gray-900"
     }`;
 
   const seg = (active) =>
-    `px-3 py-1 text-sm rounded-md border font-medium ${
+    `px-3 py-1 text-sm rounded-md border font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
       active
-        ? "bg-amber-100 border-amber-400 text-gray-900"
+        ? "bg-amber-50 border-amber-400 text-gray-900 ring-2 ring-amber-400"
+        : "bg-white border-gray-300 text-gray-900"
+    }`;
+
+  const checkWrap = (checked) =>
+    `inline-flex items-center gap-2 px-2.5 py-1 rounded-md border text-sm ${
+      checked
+        ? "bg-amber-50 border-amber-400 text-gray-900 ring-2 ring-amber-400"
         : "bg-white border-gray-300 text-gray-900"
     }`;
 
@@ -268,6 +277,7 @@ export default function CollectionSet() {
                     onClick={() => toggleCode(r.code)}
                     className={chip(active)}
                     title={r.label}
+                    aria-pressed={active}
                   >
                     {r.label} <span className="opacity-60">· {r.count}</span>
                   </button>
@@ -292,6 +302,7 @@ export default function CollectionSet() {
             className={seg(!showMissingOnly)}
             onClick={() => setShowMissingOnly(false)}
             type="button"
+            aria-pressed={!showMissingOnly}
           >
             Toutes
           </button>
@@ -299,6 +310,7 @@ export default function CollectionSet() {
             className={seg(showMissingOnly)}
             onClick={() => setShowMissingOnly(true)}
             type="button"
+            aria-pressed={showMissingOnly}
           >
             Manquantes
           </button>
@@ -307,22 +319,25 @@ export default function CollectionSet() {
         {/* Sous-filtres variantes visibles seulement si Manquantes */}
         {showMissingOnly && (
           <div className="mt-2 flex items-center gap-2 flex-wrap">
-            <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+            <div className="flex flex-wrap gap-2">
               {variants.map((t) => {
-                const active = missingTypes.includes(t);
+                const checked = missingTypes.includes(t);
                 return (
-                  <button
-                    key={t}
-                    type="button"
-                    onClick={() => toggleMissingType(t)}
-                    className={chip(active)}
-                  >
-                    {t === "normal" && "Normal"}
-                    {t === "holo" && "Holo"}
-                    {t === "reverse" && "Reverse"}
-                    {t === "pokeball" && "Pokéball"}
-                    {t === "masterball" && "Master Ball"}
-                  </button>
+                  <label key={t} className={checkWrap(checked)}>
+                    <input
+                      type="checkbox"
+                      className="accent-amber-600"
+                      checked={checked}
+                      onChange={() => toggleMissingType(t)}
+                    />
+                    <span>
+                      {t === "normal" && "Normal"}
+                      {t === "holo" && "Holo"}
+                      {t === "reverse" && "Reverse"}
+                      {t === "pokeball" && "Pokéball"}
+                      {t === "masterball" && "Master Ball"}
+                    </span>
+                  </label>
                 );
               })}
             </div>
@@ -344,6 +359,7 @@ export default function CollectionSet() {
             className={seg(viewMode === "detail")}
             onClick={() => setViewMode("detail")}
             type="button"
+            aria-pressed={viewMode === "detail"}
           >
             Détail
           </button>
@@ -351,6 +367,7 @@ export default function CollectionSet() {
             className={seg(viewMode === "mini")}
             onClick={() => setViewMode("mini")}
             type="button"
+            aria-pressed={viewMode === "mini"}
           >
             Mini (image + ID)
           </button>
@@ -400,7 +417,7 @@ export default function CollectionSet() {
               <div
                 key={card.id}
                 className={`bg-white rounded-xl shadow p-3 border ${
-                  complete ? "border-emerald-400" : "border-gray-200"
+                  complete ? "border-emerald-400" : "border-gray-2 00"
                 }`}
               >
                 {/* Carte plus grande */}
