@@ -47,6 +47,7 @@ const cardsBySet = {
   "EV8.5": cardsEV85,
   EV8: cardsEV8,
 };
+
 const variants = ["normal", "holo", "reverse", "pokeball", "masterball"];
 
 export default function Collection() {
@@ -59,25 +60,57 @@ export default function Collection() {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {recentSets.map((set) => {
           const cards = cardsBySet[set.code] || [];
-          const checklistRaw = localStorage.getItem(
-            `checklist_${set.code.toLowerCase().replace(/\./g, "")}`
-          );
+
+          // même clé que dans SetViewer/CollectionSet
+          const normalized = set.code
+            .toLowerCase()
+            .replace(/\s+/g, "")
+            .replace(/\./g, "");
+          const checklistRaw = localStorage.getItem(`checklist_${normalized}`);
           const checklist = checklistRaw ? JSON.parse(checklistRaw) : {};
 
-          // On considère une carte "possédée" si au moins une des variantes est cochée
-          const owned = cards.filter((card) => {
-            const state = checklist[card.id];
-            return state && variants.some((v) => state[v]);
-          }).length;
+          // Variantes autorisées par set
+          const allowedVariants = (card) => {
+            const rc = card?.rarityCode || "";
+            if (
+              normalized === "ev8" ||
+              normalized === "ev9" ||
+              normalized === "ev10"
+            ) {
+              if (rc === "C" || rc === "U") return ["normal", "reverse"];
+              if (rc === "R") return ["holo"];
+              return ["normal"];
+            }
+            if (
+              normalized === "ev85" ||
+              normalized === "ev105bl" ||
+              normalized === "ev105wh"
+            ) {
+              if (rc === "C" || rc === "U")
+                return ["normal", "reverse", "pokeball", "masterball"];
+              if (rc === "R")
+                return ["holo", "reverse", "pokeball", "masterball"];
+              return ["normal"];
+            }
+            return variants; // EV10.5 et autres
+          };
 
-          const total = cards.length;
-          const percent = total > 0 ? Math.round((owned / total) * 100) : 0;
+          // Progression: variantes cochées / variantes requises
+          let have = 0,
+            need = 0;
+          for (const c of cards) {
+            const allowed = allowedVariants(c);
+            need += allowed.length;
+            const state = checklist[c.id] || {};
+            for (const v of allowed) if (state[v]) have++;
+          }
+          const percent = need ? Math.round((have / need) * 100) : 0;
 
           return (
             <Link
               key={set.code}
               to={`/collection/${set.code}`}
-              className="bg-white border border-gray-200 rounded-xl shadow hover:shadow-md transition-all p-4 text-center hover:bg-blue-50 cursor-pointer active:scale-[0.97]"
+              className="bg-white border border-gray-200 rounded-xl p-4 text-center hover:bg-blue-50 cursor-pointer active:scale-[0.99] transition select-none"
             >
               <img
                 src={set.logo}
@@ -88,9 +121,8 @@ export default function Collection() {
               <p className="text-lg font-semibold text-gray-800">{set.name}</p>
               <p className="text-xs text-gray-500 mt-1">Code : {set.code}</p>
 
-              {/* Progression */}
-              <div className="mt-3 text-sm text-gray-600">
-                Progression : {owned}/{total} cartes ({percent}%)
+              <div className="mt-3 text-sm text-gray-700">
+                Progression : {have}/{need} ({percent}%)
               </div>
               <div className="w-full bg-gray-200 h-2 mt-1 rounded-full">
                 <div
