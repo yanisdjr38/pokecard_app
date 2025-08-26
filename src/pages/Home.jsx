@@ -1,86 +1,11 @@
-import { createClient } from "@supabase/supabase-js";
+// src/pages/Home.jsx
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { Link } from "react-router-dom";
+import { listNews, listPosts, listSets, sendFeedback } from "../api/content";
 
-// ---------------------------------
-// Config
-// ---------------------------------
 const LOGO = "/ctlogo.png"; // placez ctlogo.png dans public/
-const supa = createClient(
-  import.meta.env.VITE_SB_URL,
-  import.meta.env.VITE_SB_ANON
-);
 
-// Séries locales d'exemple (utilisées pour l'aperçu)
-const recentSets = [
-  {
-    name: "Foudre Noire",
-    code: "EV10.5BL",
-    logo: "https://pokecardex.b-cdn.net/assets/images/logos/BLK.png",
-  },
-  {
-    name: "Flamme Blanche",
-    code: "EV10.5WH",
-    logo: "https://pokecardex.b-cdn.net/assets/images/logos/WHT.png",
-  },
-  {
-    name: "Rivalité des Destinées",
-    code: "EV10",
-    logo: "https://pokecardex.b-cdn.net/assets/images/logos/DRI.png",
-  },
-  {
-    name: "Aventure Ensemble",
-    code: "EV9",
-    logo: "https://pokecardex.b-cdn.net/assets/images/logos/JTG.png",
-  },
-  {
-    name: "Évolution Prismatique",
-    code: "EV8.5",
-    logo: "https://pokecardex.b-cdn.net/assets/images/logos/PRE.png",
-  },
-  {
-    name: "Étincelles Déferlantes",
-    code: "EV8",
-    logo: "https://pokecardex.b-cdn.net/assets/images/logos/SSP.png",
-  },
-];
-
-// ---------------------------------
-// API Supabase
-// ---------------------------------
-async function listPosts(limit = 3) {
-  let q = supa
-    .from("posts")
-    .select("id,title,slug,excerpt,content_md,cover_url,published_at")
-    .eq("status", "published")
-    .order("published_at", { ascending: false });
-  if (limit) q = q.limit(limit);
-  const { data, error } = await q;
-  if (error) throw error;
-  return data ?? [];
-}
-
-async function listNews(limit = 4) {
-  let q = supa
-    .from("news")
-    .select("id,title,published_at,link")
-    .order("pinned", { ascending: false })
-    .order("published_at", { ascending: false });
-  if (limit) q = q.limit(limit);
-  const { data, error } = await q;
-  if (error) throw error;
-  return data ?? [];
-}
-
-async function sendFeedback(payload) {
-  const { error } = await supa.from("feedback").insert(payload);
-  if (error) throw error;
-}
-
-// ---------------------------------
-// Page
-// ---------------------------------
 export default function Home() {
   // Splash au premier chargement
   const [isLoading, setIsLoading] = useState(true);
@@ -100,10 +25,13 @@ export default function Home() {
   // Contenu dynamique
   const [posts, setPosts] = useState([]); // blog
   const [news, setNews] = useState([]); // actus
+  const [sets, setSets] = useState([]); // séries
   const [activePost, setActivePost] = useState(null);
+
   useEffect(() => {
     listPosts(3).then(setPosts).catch(console.error);
     listNews(4).then(setNews).catch(console.error);
+    listSets(3).then(setSets).catch(console.error);
   }, []);
 
   // États "voir plus"
@@ -116,14 +44,14 @@ export default function Home() {
   });
   const toggle = (k) => setExpanded((s) => ({ ...s, [k]: !s[k] }));
 
-  // limites d'aperçu
+  // limites d’aperçu
   const limit = { series: 3, news: 4, blog: 4, social: 4 };
 
   if (isLoading) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-white">
         <div className="flex flex-col items-center gap-4">
-          <img src={LOGO} alt="CardTrackr logo" className="h-16 opacity-90" />
+          <img src={LOGO} alt="CardTrackr logo" className="h-32 opacity-90" />
           <div className="w-12 h-12 rounded-full border-4 border-blue-500 border-t-transparent animate-spin" />
           <p className="text-gray-600 text-sm">Chargement…</p>
         </div>
@@ -197,25 +125,24 @@ export default function Home() {
           </button>
         </header>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {(expanded.series
-            ? recentSets
-            : recentSets.slice(0, limit.series)
-          ).map((set) => (
+          {(expanded.series ? sets : sets.slice(0, limit.series)).map((set) => (
             <Link
-              key={set.code}
-              to={`/set/${set.code}`}
+              key={set.code_raw}
+              to={`/set/${set.code_raw}`}
               className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all p-4 text-center hover:bg-blue-50 active:scale-[0.98]"
             >
               <img
-                src={set.logo}
-                alt={set.name}
+                src={set.logo_url}
+                alt={set.name || set.code_raw}
                 className="w-20 h-auto mx-auto mb-3"
                 loading="lazy"
               />
               <p className="text-base font-semibold text-gray-800">
-                {set.name}
+                {set.name || set.code_raw}
               </p>
-              <p className="text-xs text-gray-500 mt-1">Code : {set.code}</p>
+              <p className="text-xs text-gray-500 mt-1">
+                Code : {set.code_raw}
+              </p>
             </Link>
           ))}
         </div>
@@ -371,9 +298,8 @@ export default function Home() {
   );
 }
 
-// ---------------------------------
-// Composants utilitaires
-// ---------------------------------
+/* ===== Composants utilitaires ===== */
+
 const socialLinks = [
   { id: "ig", name: "Instagram", url: "#", icon: "📸" },
   { id: "x", name: "X / Twitter", url: "#", icon: "✖️" },
@@ -500,7 +426,7 @@ function FeedbackForm() {
       <div className="mt-4 flex items-center gap-3">
         <button
           type="submit"
-          className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.98]"
+          className="px-4 py-2 rounded-lg bg-blue-600 text-black hover:bg-blue-700 active:scale-[0.98]"
         >
           Envoyer
         </button>
@@ -516,9 +442,7 @@ function FeedbackForm() {
   );
 }
 
-// ---------------------------------
-// Modal article
-// ---------------------------------
+/* ===== Modal article ===== */
 function PostModal({ post, onClose }) {
   return (
     <div className="fixed inset-0 z-[60] bg-black/50 flex">
@@ -556,7 +480,7 @@ function PostModal({ post, onClose }) {
   );
 }
 
-// helpers
+/* ===== Helpers ===== */
 function isInternal(link) {
   return typeof link === "string" && link.startsWith("/");
 }
