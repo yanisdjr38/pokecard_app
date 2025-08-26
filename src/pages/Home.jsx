@@ -31,7 +31,7 @@ export default function Home() {
   useEffect(() => {
     listPosts(3).then(setPosts).catch(console.error);
     listNews(4).then(setNews).catch(console.error);
-    listSets(3).then(setSets).catch(console.error);
+    listSets().then(setSets).catch(console.error);
   }, []);
 
   // États "voir plus"
