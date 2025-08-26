@@ -1,10 +1,18 @@
+import { createClient } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
+import ReactMarkdown from "react-markdown";
 import { Link } from "react-router-dom";
 
-// Logo dans public/
-const LOGO = "/public/ctlogo.png"; // placez ctlogo.png dans public/
+// ---------------------------------
+// Config
+// ---------------------------------
+const LOGO = "/ctlogo.png"; // placez ctlogo.png dans public/
+const supa = createClient(
+  import.meta.env.VITE_SB_URL,
+  import.meta.env.VITE_SB_ANON
+);
 
-// --- Données exemples ---
+// Séries locales d'exemple (utilisées pour l'aperçu)
 const recentSets = [
   {
     name: "Foudre Noire",
@@ -38,46 +46,43 @@ const recentSets = [
   },
 ];
 
-const newsItems = [
-  // Exemple. Remplacer par vos données ou un fetch plus tard.
-  {
-    id: 1,
-    title: "Mise à jour de la base EV10",
-    date: "2025-08-20",
-    to: "/news/maj-ev10",
-  },
-  {
-    id: 2,
-    title: "Nouveau filtre pour cartes manquantes",
-    date: "2025-08-12",
-    to: "/news/filtre-missing",
-  },
-];
+// ---------------------------------
+// API Supabase
+// ---------------------------------
+async function listPosts(limit = 3) {
+  let q = supa
+    .from("posts")
+    .select("id,title,slug,excerpt,content_md,cover_url,published_at")
+    .eq("status", "published")
+    .order("published_at", { ascending: false });
+  if (limit) q = q.limit(limit);
+  const { data, error } = await q;
+  if (error) throw error;
+  return data ?? [];
+}
 
-const blogPosts = [
-  {
-    id: 1,
-    title: "Comment trier vos cartes pour Vinted",
-    date: "2025-07-30",
-    to: "/blog/trier-cartes",
-  },
-  {
-    id: 2,
-    title: "Protégers vos cartes: sleeves et toploaders",
-    date: "2025-07-18",
-    to: "/blog/protection-cartes",
-  },
-];
+async function listNews(limit = 4) {
+  let q = supa
+    .from("news")
+    .select("id,title,published_at,link")
+    .order("pinned", { ascending: false })
+    .order("published_at", { ascending: false });
+  if (limit) q = q.limit(limit);
+  const { data, error } = await q;
+  if (error) throw error;
+  return data ?? [];
+}
 
-const socialLinks = [
-  { id: "ig", name: "Instagram", url: "#", icon: "📸" },
-  { id: "x", name: "X / Twitter", url: "#", icon: "✖️" },
-  { id: "tt", name: "TikTok", url: "#", icon: "🎵" },
-  { id: "yt", name: "YouTube", url: "#", icon: "▶️" },
-];
+async function sendFeedback(payload) {
+  const { error } = await supa.from("feedback").insert(payload);
+  if (error) throw error;
+}
 
+// ---------------------------------
+// Page
+// ---------------------------------
 export default function Home() {
-  // Splash au premier chargement de la session
+  // Splash au premier chargement
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
     const seen = sessionStorage.getItem("seenSplash");
@@ -92,16 +97,27 @@ export default function Home() {
     return () => clearTimeout(t);
   }, []);
 
-  // Etats "voir plus" par section
+  // Contenu dynamique
+  const [posts, setPosts] = useState([]); // blog
+  const [news, setNews] = useState([]); // actus
+  const [activePost, setActivePost] = useState(null);
+  useEffect(() => {
+    listPosts(3).then(setPosts).catch(console.error);
+    listNews(4).then(setNews).catch(console.error);
+  }, []);
+
+  // États "voir plus"
   const [expanded, setExpanded] = useState({
     series: false,
     news: false,
     blog: false,
     social: false,
-    feedback: true, // on affiche le formulaire par défaut
+    feedback: true,
   });
-
   const toggle = (k) => setExpanded((s) => ({ ...s, [k]: !s[k] }));
+
+  // limites d'aperçu
+  const limit = { series: 3, news: 4, blog: 4, social: 4 };
 
   if (isLoading) {
     return (
@@ -115,14 +131,11 @@ export default function Home() {
     );
   }
 
-  // limites d'aperçu avant "voir plus"
-  const limit = { series: 3, news: 4, blog: 4, social: 4 };
-
   return (
     <div className="px-4 py-4 pb-28 w-full max-w-screen-sm sm:max-w-4xl mx-auto">
       {/* Header */}
       <header className="flex items-center justify-center mb-3">
-        <img src={LOGO} alt="CardTrackr logo" className="h-25" />
+        <img src={LOGO} alt="CardTrackr logo" className="h-32" />
       </header>
 
       {/* Sommaire sticky mobile */}
@@ -220,29 +233,43 @@ export default function Home() {
             {expanded.news ? "Voir moins" : "Voir plus"}
           </button>
         </header>
-        {newsItems.length === 0 ? (
+        {news.length === 0 ? (
           <p className="text-gray-600 text-sm">
             Aucune actualité pour le moment.
           </p>
         ) : (
           <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {(expanded.news ? newsItems : newsItems.slice(0, limit.news)).map(
-              (n) => (
-                <li
-                  key={n.id}
-                  className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-sm"
-                >
-                  <Link to={n.to} className="block">
+            {(expanded.news ? news : news.slice(0, limit.news)).map((n) => (
+              <li
+                key={n.id}
+                className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-sm"
+              >
+                {isInternal(n.link) ? (
+                  <Link to={n.link || "#"} className="block">
                     <p className="text-base font-semibold text-gray-800">
                       {n.title}
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
-                      {new Date(n.date).toLocaleDateString()}
+                      {fmtDate(n.published_at)}
                     </p>
                   </Link>
-                </li>
-              )
-            )}
+                ) : (
+                  <a
+                    href={n.link || "#"}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="block"
+                  >
+                    <p className="text-base font-semibold text-gray-800">
+                      {n.title}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {fmtDate(n.published_at)}
+                    </p>
+                  </a>
+                )}
+              </li>
+            ))}
           </ul>
         )}
       </section>
@@ -259,27 +286,44 @@ export default function Home() {
             {expanded.blog ? "Voir moins" : "Voir plus"}
           </button>
         </header>
-        {blogPosts.length === 0 ? (
+        {posts.length === 0 ? (
           <p className="text-gray-600 text-sm">Aucun article publié.</p>
         ) : (
           <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {(expanded.blog ? blogPosts : blogPosts.slice(0, limit.blog)).map(
-              (b) => (
-                <li
-                  key={b.id}
-                  className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-sm"
-                >
-                  <Link to={b.to} className="block">
-                    <p className="text-base font-semibold text-gray-800">
-                      {b.title}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {new Date(b.date).toLocaleDateString()}
-                    </p>
-                  </Link>
-                </li>
-              )
-            )}
+            {(expanded.blog ? posts : posts.slice(0, limit.blog)).map((b) => (
+              <li
+                key={b.id}
+                className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-sm"
+              >
+                {b.cover_url && (
+                  <img
+                    src={b.cover_url}
+                    alt={b.title}
+                    className="w-full h-36 object-cover rounded-lg mb-2"
+                    loading="lazy"
+                  />
+                )}
+                <p className="text-base font-semibold text-gray-800">
+                  {b.title}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {fmtDate(b.published_at)}
+                </p>
+                {b.excerpt && (
+                  <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                    {b.excerpt}
+                  </p>
+                )}
+                <div className="mt-3">
+                  <button
+                    onClick={() => setActivePost(b)}
+                    className="text-sm px-3 py-1 rounded-lg border border-blue-600 text-blue-700 hover:bg-blue-50 active:scale-[0.98]"
+                  >
+                    Lire
+                  </button>
+                </div>
+              </li>
+            ))}
           </ul>
         )}
       </section>
@@ -296,28 +340,7 @@ export default function Home() {
             {expanded.social ? "Voir moins" : "Voir plus"}
           </button>
         </header>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {(expanded.social
-            ? socialLinks
-            : socialLinks.slice(0, limit.social)
-          ).map((s) => (
-            <a
-              key={s.id}
-              href={s.url}
-              target="_blank"
-              rel="noreferrer"
-              className="bg-white border border-gray-200 rounded-xl p-4 text-center hover:shadow-sm hover:bg-blue-50"
-            >
-              <div className="text-2xl mb-2" aria-hidden>
-                {s.icon}
-              </div>
-              <div className="text-sm font-medium text-gray-800">{s.name}</div>
-            </a>
-          ))}
-        </div>
-        <p className="text-xs text-gray-500 mt-3">
-          Remplacez les URLs par vos liens officiels.
-        </p>
+        <SocialGrid expanded={expanded.social} limit={limit.social} />
       </section>
 
       {/* --- Avis --- */}
@@ -340,32 +363,76 @@ export default function Home() {
           </p>
         )}
       </section>
+
+      {activePost && (
+        <PostModal post={activePost} onClose={() => setActivePost(null)} />
+      )}
     </div>
   );
 }
 
-// Composant formulaire isolé pour éviter les re-rendus
+// ---------------------------------
+// Composants utilitaires
+// ---------------------------------
+const socialLinks = [
+  { id: "ig", name: "Instagram", url: "#", icon: "📸" },
+  { id: "x", name: "X / Twitter", url: "#", icon: "✖️" },
+  { id: "tt", name: "TikTok", url: "#", icon: "🎵" },
+  { id: "yt", name: "YouTube", url: "#", icon: "▶️" },
+  { id: "fb", name: "Facebook", url: "#", icon: "📘" },
+  { id: "rd", name: "Reddit", url: "#", icon: "👽" },
+];
+
+function SocialGrid({ expanded, limit }) {
+  const items = expanded ? socialLinks : socialLinks.slice(0, limit);
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      {items.map((s) => (
+        <a
+          key={s.id}
+          href={s.url}
+          target="_blank"
+          rel="noreferrer"
+          className="bg-white border border-gray-200 rounded-xl p-4 text-center hover:shadow-sm hover:bg-blue-50"
+        >
+          <div className="text-2xl mb-2" aria-hidden>
+            {s.icon}
+          </div>
+          <div className="text-sm font-medium text-gray-800">{s.name}</div>
+        </a>
+      ))}
+    </div>
+  );
+}
+
 function FeedbackForm() {
   const [fb, setFb] = useState({
     name: "",
     email: "",
     rating: "5",
     message: "",
+    hp: "",
   });
   const [fbOk, setFbOk] = useState(false);
+  const [fbErr, setFbErr] = useState("");
 
-  function handleFeedbackSubmit(e) {
+  async function handleFeedbackSubmit(e) {
     e.preventDefault();
     try {
-      const key = "feedback-submissions";
-      const prev = JSON.parse(localStorage.getItem(key) || "[]");
-      const record = { ...fb, createdAt: new Date().toISOString() };
-      localStorage.setItem(key, JSON.stringify([record, ...prev]));
-      setFb({ name: "", email: "", rating: "5", message: "" });
+      if (fb.hp) return; // honeypot
+      await sendFeedback({
+        name: fb.name || null,
+        email: fb.email || null,
+        rating: Number(fb.rating),
+        message: fb.message,
+        ua: navigator.userAgent,
+      });
+      setFb({ name: "", email: "", rating: "5", message: "", hp: "" });
+      setFbErr("");
       setFbOk(true);
       setTimeout(() => setFbOk(false), 2500);
-    } catch {
-      void 0;
+    } catch (err) {
+      setFbErr(err?.message || "Erreur d'envoi");
     }
   }
 
@@ -374,6 +441,14 @@ function FeedbackForm() {
       onSubmit={handleFeedbackSubmit}
       className="bg-white border border-gray-200 rounded-xl p-4 max-w-xl"
     >
+      <input
+        type="text"
+        value={fb.hp}
+        onChange={(e) => setFb({ ...fb, hp: e.target.value })}
+        className="hidden"
+        tabIndex={-1}
+        aria-hidden
+      />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <label className="text-sm">
           <span className="text-gray-700">Nom</span>
@@ -432,10 +507,63 @@ function FeedbackForm() {
         {fbOk && (
           <span className="text-sm text-green-600">Merci pour votre avis.</span>
         )}
+        {fbErr && <span className="text-sm text-red-600">{fbErr}</span>}
       </div>
       <p className="text-[11px] text-gray-500 mt-3">
-        Stocké localement pour démo. Connectez un backend plus tard.
+        Envoi via Supabase, aucune donnée n'est exposée publiquement.
       </p>
     </form>
   );
+}
+
+// ---------------------------------
+// Modal article
+// ---------------------------------
+function PostModal({ post, onClose }) {
+  return (
+    <div className="fixed inset-0 z-[60] bg-black/50 flex">
+      <div className="m-2 sm:m-6 bg-white rounded-2xl w-full max-w-3xl mx-auto overflow-hidden flex flex-col">
+        <header className="flex items-center justify-between px-4 py-3 border-b">
+          <div>
+            <h3 className="text-lg font-bold leading-tight">{post.title}</h3>
+            <p className="text-xs text-gray-500">
+              {fmtDate(post.published_at)}
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="px-3 py-1 rounded-lg border hover:bg-gray-50"
+          >
+            Fermer
+          </button>
+        </header>
+        <div className="p-4 overflow-y-auto grow">
+          {post.cover_url && (
+            <img
+              src={post.cover_url}
+              alt="cover"
+              className="w-full max-h-64 object-cover rounded-xl mb-4"
+            />
+          )}
+          <article className="prose prose-sm sm:prose max-w-none">
+            <ReactMarkdown>
+              {post.content_md || post.excerpt || ""}
+            </ReactMarkdown>
+          </article>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// helpers
+function isInternal(link) {
+  return typeof link === "string" && link.startsWith("/");
+}
+function fmtDate(d) {
+  try {
+    return new Date(d).toLocaleDateString();
+  } catch {
+    return "";
+  }
 }
