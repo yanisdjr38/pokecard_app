@@ -24,8 +24,8 @@ export async function listPosts(limit = 3) {
 export async function listNews(limit = 4) {
   let q = supa
     .from("news")
-    .select("id,title,published_at,link,pinned")
-    .order("pinned", { ascending: false })
+    .select("id,title,slug,excerpt,content_md,cover_url,published_at")
+    .eq("status", "published")
     .order("published_at", { ascending: false });
   if (limit) q = q.limit(limit);
   const { data, error } = await q;

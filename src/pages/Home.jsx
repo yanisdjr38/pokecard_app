@@ -27,11 +27,12 @@ export default function Home() {
   const [news, setNews] = useState([]); // actus
   const [sets, setSets] = useState([]); // séries
   const [activePost, setActivePost] = useState(null);
+  const [activeNews, setActiveNews] = useState(null);
 
   useEffect(() => {
     listPosts(3).then(setPosts).catch(console.error);
     listNews(4).then(setNews).catch(console.error);
-    listSets().then(setSets).catch(console.error);
+    listSets(0).then(setSets).catch(console.error);
   }, []);
 
   // États "voir plus"
@@ -148,7 +149,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* --- Actus --- */}
+      {/* --- Actus (mêmes fonctions que Blog) --- */}
       <section id="news" className="mb-8">
         <header className="flex items-center justify-between mb-3">
           <h2 className="text-2xl font-bold">Actualité</h2>
@@ -171,30 +172,33 @@ export default function Home() {
                 key={n.id}
                 className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-sm"
               >
-                {isInternal(n.link) ? (
-                  <Link to={n.link || "#"} className="block">
-                    <p className="text-base font-semibold text-gray-800">
-                      {n.title}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {fmtDate(n.published_at)}
-                    </p>
-                  </Link>
-                ) : (
-                  <a
-                    href={n.link || "#"}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="block"
-                  >
-                    <p className="text-base font-semibold text-gray-800">
-                      {n.title}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {fmtDate(n.published_at)}
-                    </p>
-                  </a>
+                {n.cover_url && (
+                  <img
+                    src={n.cover_url}
+                    alt={n.title}
+                    className="w-full h-36 object-cover rounded-lg mb-2"
+                    loading="lazy"
+                  />
                 )}
+                <p className="text-base font-semibold text-gray-800">
+                  {n.title}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {fmtDate(n.published_at)}
+                </p>
+                {n.excerpt && (
+                  <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                    {n.excerpt}
+                  </p>
+                )}
+                <div className="mt-3">
+                  <button
+                    onClick={() => setActiveNews(n)}
+                    className="text-sm px-3 py-1 rounded-lg border border-blue-600 text-blue-700 hover:bg-blue-50 active:scale-[0.98]"
+                  >
+                    Lire
+                  </button>
+                </div>
               </li>
             ))}
           </ul>
@@ -293,6 +297,9 @@ export default function Home() {
 
       {activePost && (
         <PostModal post={activePost} onClose={() => setActivePost(null)} />
+      )}
+      {activeNews && (
+        <PostModal post={activeNews} onClose={() => setActiveNews(null)} />
       )}
     </div>
   );
@@ -442,7 +449,7 @@ function FeedbackForm() {
   );
 }
 
-/* ===== Modal article ===== */
+/* ===== Modal article (blog/actus) ===== */
 function PostModal({ post, onClose }) {
   return (
     <div className="fixed inset-0 z-[60] bg-black/50 flex">
@@ -481,9 +488,6 @@ function PostModal({ post, onClose }) {
 }
 
 /* ===== Helpers ===== */
-function isInternal(link) {
-  return typeof link === "string" && link.startsWith("/");
-}
 function fmtDate(d) {
   try {
     return new Date(d).toLocaleDateString();
