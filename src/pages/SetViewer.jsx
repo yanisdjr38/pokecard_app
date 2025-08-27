@@ -68,14 +68,12 @@ export default function SetViewer() {
     <div className="px-4 py-6 pb-24 w-full max-w-screen-sm sm:max-w-4xl mx-auto">
       {/* Titre/logo set */}
       <div className="mb-4 text-center">
-        {meta?.logo_url ? (
+        {meta && (
           <img
             src={meta.logo_url}
             alt={meta?.name || code}
             className="h-16 mx-auto"
           />
-        ) : (
-          <h1 className="text-2xl sm:text-3xl font-bold">Set – {code}</h1>
         )}
         {meta?.name && (
           <p className="text-xs text-gray-500 mt-1">{meta.name}</p>
@@ -131,7 +129,7 @@ export default function SetViewer() {
             <div
               key={card.id}
               className="bg-white rounded-xl shadow-sm border border-gray-200 p-2 text-center"
-              title={`#${card.id} · ${card.name}`}
+              title={`${card.id} · ${card.name}`}
             >
               <img
                 src={card.image}
@@ -140,7 +138,7 @@ export default function SetViewer() {
                 loading="lazy"
               />
               <p className="mt-1 text-xs text-gray-700 font-medium truncate">
-                #{card.id} {card.name}
+                {card.name}
               </p>
               {card.rarity && (
                 <p className="text-[11px] text-gray-500">{card.rarity}</p>
