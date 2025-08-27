@@ -1,7 +1,17 @@
 #root {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
+  box-sizing: border-box;
+
+  /* hauteur visible entre les barres système */
+  min-height: calc(100dvb - var(--sat) - var(--sab));
+
+  /* espace sous la status bar et au-dessus des boutons/gestes */
+  padding-top: max(1rem, var(--sat));
+  padding-bottom: max(1rem, var(--sab));
+  padding-left: 1rem;
+  padding-right: 1rem;
+
   text-align: center;
 }
 
