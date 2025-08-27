@@ -266,16 +266,12 @@ export default function CollectionSet() {
     <div className="px-3 pt-3 pb-40 max-w-screen-sm sm:max-w-4xl mx-auto">
       {/* Titre/logo set */}
       <div className="mb-2 text-center">
-        {meta?.logo_url ? (
+        {meta && (
           <img
             src={meta.logo_url}
-            alt={meta?.name || code}
+            alt={meta.name || code}
             className="h-16 mx-auto"
           />
-        ) : (
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-            Checklist - {code}
-          </h1>
         )}
         <div className="mt-1 text-[11px] text-gray-600">
           {progress.have}/{progress.need} · {progress.pct}%
@@ -459,7 +455,7 @@ export default function CollectionSet() {
                 {/* Infos */}
                 <div className="text-center mt-2">
                   <p className="font-semibold text-sm text-gray-900 truncate">
-                    #{card.id} {card.name}
+                    {card.name}
                   </p>
                   <p className="text-[11px] text-gray-600">ID: {card.id}</p>
                   {card.rarity && (
