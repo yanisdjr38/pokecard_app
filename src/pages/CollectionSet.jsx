@@ -8,6 +8,7 @@ import { cardsEV105WH } from "../data/cardsEV105WH";
 import { cardsEV8 } from "../data/cardsEV8";
 import { cardsEV85 } from "../data/cardsEV85";
 import { cardsEV9 } from "../data/cardsEV9";
+import { cardsME1 } from "../data/cardsME1";
 
 import { getSetByNorm, normalizeCode } from "../api/content";
 
@@ -15,6 +16,7 @@ import { getSetByNorm, normalizeCode } from "../api/content";
 const variants = ["normal", "holo", "reverse", "pokeball", "masterball"];
 const EMPTY_ARRAY = [];
 const CARDS_BY_SET = {
+  me1: cardsME1,
   ev105bl: cardsEV105BL,
   ev105wh: cardsEV105WH,
   ev10: cardsEV10,
@@ -100,7 +102,8 @@ export default function CollectionSet() {
       if (
         normalizedCode === "ev8" ||
         normalizedCode === "ev9" ||
-        normalizedCode === "ev10"
+        normalizedCode === "ev10" ||
+        normalizedCode === "me1"
       ) {
         if (rc === "C" || rc === "U") return ["normal", "reverse"];
         if (rc === "R") return ["holo"];

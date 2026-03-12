@@ -9,9 +9,11 @@ import { cardsEV105WH } from "../data/cardsEV105WH";
 import { cardsEV8 } from "../data/cardsEV8";
 import { cardsEV85 } from "../data/cardsEV85";
 import { cardsEV9 } from "../data/cardsEV9";
+import { cardsME1 } from "../data/cardsME1";
 
 // Map jeux de données locaux
 const CARDS_BY_SET = {
+  me1: cardsME1,
   ev105bl: cardsEV105BL,
   ev105wh: cardsEV105WH,
   ev10: cardsEV10,
