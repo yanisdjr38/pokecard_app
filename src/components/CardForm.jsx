@@ -15,6 +15,12 @@ export default function CardForm({ onAdd }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const hasError =
+      !card.name || !card.series || !card.number || !card.condition;
+    if (hasError) {
+      alert("Veuillez remplir tous les champs obligatoires");
+      return;
+    }
     onAdd({ ...card, id: Date.now() });
     setCard({
       name: "",
@@ -28,49 +34,60 @@ export default function CardForm({ onAdd }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-4 p-4 bg-white rounded shadow"
+      className="space-y-3 sm:space-y-4 p-4 sm:p-6 bg-white rounded-lg shadow-sm border border-gray-200 w-full"
     >
-      <input
-        name="name"
-        placeholder="Nom de la carte"
-        onChange={handleChange}
-        value={card.name}
-        className="input"
-      />
-      <input
-        name="series"
-        placeholder="Série"
-        onChange={handleChange}
-        value={card.series}
-        className="input"
-      />
-      <input
-        name="number"
-        placeholder="Numéro"
-        onChange={handleChange}
-        value={card.number}
-        className="input"
-      />
-      <input
-        name="condition"
-        placeholder="État"
-        onChange={handleChange}
-        value={card.condition}
-        className="input"
-      />
-      <input
-        name="estimatedValue"
-        placeholder="Valeur (€)"
-        type="number"
-        onChange={handleChange}
-        value={card.estimatedValue}
-        className="input"
-      />
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+        <input
+          name="name"
+          placeholder="Nom de la carte *"
+          onChange={handleChange}
+          value={card.name}
+          className="input input-bordered w-full text-sm sm:text-base"
+          required
+        />
+        <input
+          name="series"
+          placeholder="Série *"
+          onChange={handleChange}
+          value={card.series}
+          className="input input-bordered w-full text-sm sm:text-base"
+          required
+        />
+        <input
+          name="number"
+          placeholder="Numéro *"
+          onChange={handleChange}
+          value={card.number}
+          className="input input-bordered w-full text-sm sm:text-base"
+          required
+        />
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+        <input
+          name="condition"
+          placeholder="État (ex: Mint) *"
+          onChange={handleChange}
+          value={card.condition}
+          className="input input-bordered w-full text-sm sm:text-base"
+          required
+        />
+        <input
+          name="estimatedValue"
+          placeholder="Valeur estimée (€)"
+          type="number"
+          onChange={handleChange}
+          value={card.estimatedValue}
+          className="input input-bordered w-full text-sm sm:text-base"
+          step="0.01"
+        />
+      </div>
+
       <button
         type="submit"
-        className="bg-blue-500 text-white px-4 py-2 rounded"
+        className="btn btn-primary w-full text-sm sm:text-base font-semibold"
       >
-        Ajouter
+        + Ajouter une carte
       </button>
     </form>
   );

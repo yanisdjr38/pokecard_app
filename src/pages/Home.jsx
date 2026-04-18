@@ -61,7 +61,7 @@ export default function Home() {
   }
 
   return (
-    <div className="px-4 py-4 pb-28 w-full max-w-screen-sm sm:max-w-4xl mx-auto">
+    <div className="px-3 sm:px-4 py-4 pb-24 sm:pb-28 md:pb-32 w-full max-w-screen-sm sm:max-w-4xl mx-auto">
       {/* Header */}
       <header className="flex items-center justify-center mb-3">
         <img src={LOGO} alt="CardTrackr logo" className="h-32" />

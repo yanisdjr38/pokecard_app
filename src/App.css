@@ -1,5 +1,5 @@
 #root {
-  max-width: 1280px;
+  max-width: 100%;
   margin: 0 auto;
   box-sizing: border-box;
 
@@ -7,12 +7,43 @@
   min-height: calc(100dvb - var(--sat) - var(--sab));
 
   /* espace sous la status bar et au-dessus des boutons/gestes */
-  padding-top: max(1rem, var(--sat));
-  padding-bottom: max(1rem, var(--sab));
-  padding-left: 1rem;
-  padding-right: 1rem;
+  padding-top: max(0.5rem, var(--sat));
+  padding-bottom: max(2rem, var(--sab));
+  padding-left: 0;
+  padding-right: 0;
 
-  text-align: center;
+  /* Responsive padding pour le contenu */
+  @apply sm:px-4 md:px-6 lg:px-8;
+}
+
+/* Breakpoints personnalisés pour Capacitor */
+@media (max-width: 374px) {
+  #root {
+    padding-top: max(0.25rem, var(--sat));
+    @apply px-2;
+  }
+}
+
+@media (min-width: 375px) and (max-width: 640px) {
+  #root {
+    padding-top: max(0.5rem, var(--sat));
+    @apply px-3;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  #root {
+    padding-top: max(1rem, var(--sat));
+    @apply px-4;
+  }
+}
+
+@media (min-width: 1025px) {
+  #root {
+    max-width: 1280px;
+    padding-top: max(1.5rem, var(--sat));
+    @apply px-6;
+  }
 }
 
 .logo {

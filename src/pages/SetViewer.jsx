@@ -67,7 +67,7 @@ export default function SetViewer() {
   }, [cards, q, rarityFilter]);
 
   return (
-    <div className="px-4 py-6 pb-24 w-full max-w-screen-sm sm:max-w-4xl mx-auto">
+    <div className="px-3 sm:px-4 py-6 pb-24 sm:pb-28 md:pb-32 w-full max-w-screen-sm sm:max-w-4xl mx-auto">
       {/* Titre/logo set */}
       <div className="mb-4 text-center">
         {meta && (

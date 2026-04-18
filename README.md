@@ -19,13 +19,13 @@ L'objectif principal de CardTrackr est de fournir aux collectionneurs de cartes 
 
 CardTrackr fonctionne comme une **checklist interactive** organisée par sets Pokémon (extensions). Chaque carte peut être marquée selon plusieurs variantes possibles en fonction de sa rareté :
 
-| Rareté | Variantes disponibles |
-|--------|----------------------|
-| Commune (C) / Peu commune (U) | Normal, Reverse, Pokéball*, Master Ball* |
-| Rare (R) | Holo, Reverse*, Pokéball*, Master Ball* |
-| Ultra Rare (RR, IR, SIR, UR, HR, ACE) | Normal uniquement |
+| Rareté                                | Variantes disponibles                    |
+| ------------------------------------- | ---------------------------------------- |
+| Commune (C) / Peu commune (U)         | Normal, Reverse, Pokéball*, Master Ball* |
+| Rare (R)                              | Holo, Reverse*, Pokéball*, Master Ball\* |
+| Ultra Rare (RR, IR, SIR, UR, HR, ACE) | Normal uniquement                        |
 
-*\* Selon le set (disponible sur EV8.5 et EV10.5)*
+_\* Selon le set (disponible sur EV8.5 et EV10.5)_
 
 L'application calcule automatiquement votre progression et affiche des barres visuelles pour chaque set.
 
@@ -33,53 +33,60 @@ L'application calcule automatiquement votre progression et affiche des barres vi
 
 ## ⚡ Stack technique
 
-| Technologie | Utilisation |
-|-------------|-------------|
-| **React 19** | Framework frontend |
-| **Vite 7** | Bundler et serveur de développement |
-| **Tailwind CSS 4** | Styling utilitaire |
-| **DaisyUI** | Composants UI pré-stylés |
-| **React Router DOM** | Navigation SPA |
-| **Supabase** | Backend (blog, actualités, métadonnées des sets) |
-| **Capacitor** | Build APK Android |
-| **localStorage** | Persistance locale de la collection |
+| Technologie          | Utilisation                                      |
+| -------------------- | ------------------------------------------------ |
+| **React 19**         | Framework frontend                               |
+| **Vite 7**           | Bundler et serveur de développement              |
+| **Tailwind CSS 4**   | Styling utilitaire                               |
+| **DaisyUI**          | Composants UI pré-stylés                         |
+| **React Router DOM** | Navigation SPA                                   |
+| **Supabase**         | Backend (blog, actualités, métadonnées des sets) |
+| **Capacitor**        | Build APK Android                                |
+| **localStorage**     | Persistance locale de la collection              |
 
 ---
 
 ## ✨ Fonctionnalités
 
 ### 📂 Gestion par sets
+
 - Affichage de tous les sets disponibles avec leur logo
 - Progression visuelle (barre + pourcentage) pour chaque set
 - Navigation intuitive entre les sets
 
 ### ✅ Checklist avancée
+
 - Cases à cocher par variante (Normal, Holo, Reverse, Pokéball, Master Ball)
 - Variantes adaptées automatiquement selon la rareté de la carte
 - Boutons "Tout cocher" / "Tout décocher" par carte
 - Indicateur visuel pour les cartes complètes (bordure verte)
 
 ### 🔍 Filtres et recherche
+
 - Recherche par nom ou numéro de carte
 - Filtrage par rareté (C, U, R, RR, IR, SIR, UR, HR, ACE)
 - Mode "Cartes incomplètes uniquement"
 - Filtrage par type de variante manquante
 
 ### 👁️ Modes d'affichage
+
 - **Mode Détail** : Grande image, toutes les infos et checkboxes
 - **Mode Mini** : Grille compacte avec miniatures
 
 ### 💾 Sauvegarde automatique
+
 - Persistance dans le `localStorage` du navigateur
 - Aucune création de compte requise
 - Synchronisation entre onglets
 
 ### 📱 Application mobile
+
 - Interface 100% responsive et optimisée tactile
 - Export en APK Android via Capacitor
 - Splash screen au démarrage
 
 ### 📰 Contenu dynamique
+
 - Section Blog avec articles
 - Actualités Pokémon
 - Formulaire de feedback intégré
@@ -88,29 +95,30 @@ L'application calcule automatiquement votre progression et affiche des barres vi
 
 ## 📦 Sets supportés
 
-| Code | Nom du set |
-|------|------------|
-| EV8 | Foudre Noire |
-| EV8.5 | Destinées de Paldea |
-| EV9 | Flamme Argentée |
-| EV10 | Frontières Stellaires |
+| Code      | Nom du set                          |
+| --------- | ----------------------------------- |
+| EV8       | Foudre Noire                        |
+| EV8.5     | Destinées de Paldea                 |
+| EV9       | Flamme Argentée                     |
+| EV10      | Frontières Stellaires               |
 | EV10.5 BL | Frontières Stellaires (Blasteroise) |
-| EV10.5 WH | Frontières Stellaires (Dracaufeu) |
-| ME1 | Collection Match |
+| EV10.5 WH | Frontières Stellaires (Dracaufeu)   |
+| ME1       | Collection Match                    |
 
 ---
 
 ## 🚀 Installation
 
 ### Prérequis
+
 - Node.js 18+
 - npm ou yarn
 
 ### Démarrage local
 
 ```bash
-git clone https://github.com/ton-user/pokecard-tracker.git
-cd pokecard-tracker
+git clone https://github.com/ton-user/Cardtrackr.git
+cd Cardtrackr
 npm install
 npm run dev
 ```
@@ -129,6 +137,7 @@ VITE_SB_ANON=votre-clé-anon-supabase
 ## 📱 Génération APK Android
 
 ### Prérequis
+
 - Android Studio installé
 - Capacitor configuré
 
@@ -143,6 +152,7 @@ npx cap open android
 ```
 
 Dans Android Studio :
+
 1. **Build > Build Bundle(s) / APK(s) > Build APK**
 2. Récupérer l'APK : `android/app/build/outputs/apk/debug/app-debug.apk`
 
@@ -180,12 +190,12 @@ src/
 
 ## 🛠️ Scripts disponibles
 
-| Commande | Description |
-|----------|-------------|
-| `npm run dev` | Serveur de développement |
-| `npm run build` | Build de production |
-| `npm run preview` | Prévisualiser le build |
-| `npm run lint` | Vérification ESLint |
+| Commande          | Description              |
+| ----------------- | ------------------------ |
+| `npm run dev`     | Serveur de développement |
+| `npm run build`   | Build de production      |
+| `npm run preview` | Prévisualiser le build   |
+| `npm run lint`    | Vérification ESLint      |
 
 ---
 

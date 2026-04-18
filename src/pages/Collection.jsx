@@ -97,7 +97,7 @@ export default function Collection() {
   }, [sets, tick]);
 
   return (
-    <div className="px-4 py-6 pb-24 w-full max-w-screen-sm sm:max-w-4xl mx-auto">
+    <div className="px-3 sm:px-4 py-6 pb-24 sm:pb-28 md:pb-32 w-full max-w-screen-sm sm:max-w-4xl mx-auto">
       <header className="text-center mb-4">
         <img src={LOGO} alt="CardTrackr" className="h-32 mx-auto mb-2" />
         <h1 className="text-2xl sm:text-3xl font-bold">Ma collection</h1>

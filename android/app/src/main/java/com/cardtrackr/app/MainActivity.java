@@ -1,9 +1,8 @@
 package com.cardtrackr.app;
 
-import com.getcapacitor.BridgeActivity;
-
-import android.os.Bundle;
 import androidx.core.view.WindowCompat;
+import com.getcapacitor.BridgeActivity;
+import android.os.Bundle;
 
 public class MainActivity extends BridgeActivity {
     @Override

@@ -32,7 +32,7 @@ export default function CollectionSet() {
   // Cartes du set
   const cards = useMemo(
     () => CARDS_BY_SET[normalizedCode] || EMPTY_ARRAY,
-    [normalizedCode]
+    [normalizedCode],
   );
 
   // Meta set (logo + nom depuis Supabase)
@@ -62,7 +62,7 @@ export default function CollectionSet() {
   useEffect(() => {
     localStorage.setItem(
       `checklist_${normalizedCode}`,
-      JSON.stringify(checklist)
+      JSON.stringify(checklist),
     );
   }, [checklist, normalizedCode]);
 
@@ -89,7 +89,7 @@ export default function CollectionSet() {
       map.set(c.rarityCode, prev);
     }
     return Array.from(map.values()).sort(
-      (a, b) => order.indexOf(a.code) - order.indexOf(b.code)
+      (a, b) => order.indexOf(a.code) - order.indexOf(b.code),
     );
   }, [cards]);
 
@@ -125,7 +125,7 @@ export default function CollectionSet() {
       // autres
       return variants;
     },
-    [normalizedCode]
+    [normalizedCode],
   );
 
   // Actions checklist
@@ -171,7 +171,7 @@ export default function CollectionSet() {
   const filteredCards =
     cards.length > 0
       ? cards.filter(
-          (c) => matchesSearch(c) && matchesRarity(c) && isMissingByTypes(c)
+          (c) => matchesSearch(c) && matchesRarity(c) && isMissingByTypes(c),
         )
       : EMPTY_ARRAY;
 
@@ -198,22 +198,22 @@ export default function CollectionSet() {
       code === "C"
         ? "bg-gray-100 border-gray-300"
         : code === "U"
-        ? "bg-green-100 border-green-300"
-        : code === "R"
-        ? "bg-amber-100 border-amber-300"
-        : code === "RR"
-        ? "bg-blue-100 border-blue-300"
-        : code === "IR"
-        ? "bg-pink-100 border-pink-300"
-        : code === "SIR"
-        ? "bg-rose-100 border-rose-300"
-        : code === "UR"
-        ? "bg-violet-100 border-violet-300"
-        : code === "HR"
-        ? "bg-yellow-100 border-yellow-300"
-        : code === "ACE"
-        ? "bg-emerald-100 border-emerald-300"
-        : "bg-slate-100 border-slate-300";
+          ? "bg-green-100 border-green-300"
+          : code === "R"
+            ? "bg-amber-100 border-amber-300"
+            : code === "RR"
+              ? "bg-blue-100 border-blue-300"
+              : code === "IR"
+                ? "bg-pink-100 border-pink-300"
+                : code === "SIR"
+                  ? "bg-rose-100 border-rose-300"
+                  : code === "UR"
+                    ? "bg-violet-100 border-violet-300"
+                    : code === "HR"
+                      ? "bg-yellow-100 border-yellow-300"
+                      : code === "ACE"
+                        ? "bg-emerald-100 border-emerald-300"
+                        : "bg-slate-100 border-slate-300";
     return `${base} ${color}${on}`;
   };
 
@@ -223,22 +223,22 @@ export default function CollectionSet() {
       code === "C"
         ? "bg-gray-100 border-gray-300"
         : code === "U"
-        ? "bg-green-100 border-green-300"
-        : code === "R"
-        ? "bg-amber-100 border-amber-300"
-        : code === "RR"
-        ? "bg-blue-100 border-blue-300"
-        : code === "IR"
-        ? "bg-pink-100 border-pink-300"
-        : code === "SIR"
-        ? "bg-rose-100 border-rose-300"
-        : code === "UR"
-        ? "bg-violet-100 border-violet-300"
-        : code === "HR"
-        ? "bg-yellow-100 border-yellow-300"
-        : code === "ACE"
-        ? "bg-emerald-100 border-emerald-300"
-        : "bg-slate-100 border-slate-300"
+          ? "bg-green-100 border-green-300"
+          : code === "R"
+            ? "bg-amber-100 border-amber-300"
+            : code === "RR"
+              ? "bg-blue-100 border-blue-300"
+              : code === "IR"
+                ? "bg-pink-100 border-pink-300"
+                : code === "SIR"
+                  ? "bg-rose-100 border-rose-300"
+                  : code === "UR"
+                    ? "bg-violet-100 border-violet-300"
+                    : code === "HR"
+                      ? "bg-yellow-100 border-yellow-300"
+                      : code === "ACE"
+                        ? "bg-emerald-100 border-emerald-300"
+                        : "bg-slate-100 border-slate-300"
     }`;
 
   const seg = (on) =>
@@ -255,18 +255,18 @@ export default function CollectionSet() {
 
   const toggleCode = (c) =>
     setActiveCodes((prev) =>
-      prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]
+      prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c],
     );
 
   const clearRarities = () => setActiveCodes([]);
   const toggleMissingType = (t) =>
     setMissingTypes((arr) =>
-      arr.includes(t) ? arr.filter((x) => x !== t) : [...arr, t]
+      arr.includes(t) ? arr.filter((x) => x !== t) : [...arr, t],
     );
   const clearMissingTypes = () => setMissingTypes(variants);
 
   return (
-    <div className="px-3 pt-3 pb-40 max-w-screen-sm sm:max-w-4xl mx-auto">
+    <div className="px-3 sm:px-4 pt-3 pb-24 sm:pb-28 md:pb-32 max-w-screen-sm sm:max-w-4xl mx-auto">
       {/* Titre/logo set */}
       <div className="mb-2 text-center">
         {meta && (
